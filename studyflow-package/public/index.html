@@ -262,7 +262,28 @@ html.dark .theme-toggle .knob{left:22px;}
 .page-title{font-size:27px; font-weight:800; margin-bottom:4px; letter-spacing:-0.02em;}
 .page-sub{color:var(--text-dim); margin-bottom:28px; font-size:14.5px;}
 #pageContent{animation:fadeUp .5s var(--ease) both;}
+.profile-click {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex:1;
+  min-width:0;
+  cursor:pointer;
+  transition:opacity .2s ease;
+}
 
+.profile-click:hover {
+  opacity:0.75;
+}
+
+.sidebar-foot .theme-toggle {
+  flex-shrink:0;
+  transition:opacity .2s ease;
+}
+
+.sidebar-foot .theme-toggle:hover {
+  opacity:0.75;
+}
 /* dashboard */
 .stat-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--border); border:1px solid var(--border); border-radius:20px; overflow:hidden; margin-bottom:28px;}
 @media(max-width:900px){.stat-grid{grid-template-columns:repeat(2,1fr);}}
@@ -904,9 +925,11 @@ const NAV_ITEMS = [
   ['dashboard','Dashboard','dashboard'],['calendar','Calendar','calendar'],['tasks','Tasks','check'],['exams','Exams','target'],
   ['timer','Timer','timer'],['notes','Notes','notes'],['progress','Progress','chart'],['hub','Study Hub','hub'],['settings','Settings','settings']
 ];
+
 function renderAppShell(route){
   const page = route.split('/')[2] || 'dashboard';
   const initials = (STATE.user.name||'A').split(' ').map(s=>s[0]).join('').slice(0,2).toUpperCase();
+
   return `
   <div class="app-shell">
     <div class="topbar-mobile">
@@ -917,22 +940,44 @@ function renderAppShell(route){
       </a>
       <div class="theme-toggle" onclick="toggleTheme()"><div class="knob"></div></div>
     </div>
+
     <aside class="sidebar" id="sidebar">
       <a href="#/landing" class="brand">${logoImg(50)}Stuvix</a>
-      ${NAV_ITEMS.map(([key,label,ic])=>`<a class="side-link ${page===key?'active':''}" onclick="nav('/app/${key}')"><span class="ic">${icon(ic)}</span>${label}</a>`).join('')}
+
+      ${NAV_ITEMS.map(([key,label,ic])=>`
+        <a class="side-link ${page===key?'active':''}" onclick="nav('/app/${key}')">
+          <span class="ic">${icon(ic)}</span>${label}
+        </a>
+      `).join('')}
+
       <div class="sidebar-foot">
-        <div class="avatar-sm">${initials}</div>
-        <div style="flex:1;min-width:0;">
-          <div style="font-weight:700;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${STATE.user.name}</div>
-          <div style="font-size:11.5px;color:var(--text-faint);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${STATE.user.year||STATE.user.email}</div>
+
+        <div class="profile-click" onclick="nav('/app/settings')">
+          <div class="avatar-sm">${initials}</div>
+
+          <div style="flex:1;min-width:0;">
+            <div style="font-weight:700;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+              ${STATE.user.name}
+            </div>
+
+            <div style="font-size:11.5px;color:var(--text-faint);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+              ${STATE.user.year||STATE.user.email}
+            </div>
+          </div>
         </div>
-        <div class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"><div class="knob"></div></div>
+
+        <div class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+          <div class="knob"></div>
+        </div>
+
       </div>
     </aside>
+
     <main class="main-content">
       <div id="pageContent">${renderPage(page)}</div>
     </main>
   </div>
+
   <div id="modalRoot"></div>`;
 }
 function renderPage(page){
